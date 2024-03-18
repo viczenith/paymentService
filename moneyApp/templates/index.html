@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <!-- <link rel="stylesheet" href="{% static 'styles.css' %}"> -->
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>User Profile</h1>
+        </header>
+        <div class="content">
+            {% if user.is_authenticated %}
+                <div class="user-info">
+                    <p>Welcome, <strong>{{ user.username }}</strong>!</p>
+                    <p>Email: <strong>{{ user.email }}</strong></p>
+                    <p>Total Balance: <strong>${{ user.profile.total_balance }}</strong></p>
+                </div>
+                <div class="transaction-history">
+                    <h2>Transaction History</h2>
+                    <ul>
+                        {% for transaction in user.profile.transactions.all %}
+                            <li>{{ transaction.transaction_type }}: ${{ transaction.amount }} - {{ transaction.timestamp }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="actions">
+                    <p><a href="{% url 'deposit_money' %}" class="action-link">Deposit Money</a></p>
+                    <p><a href="{% url 'withdraw_money' %}" class="action-link">Withdraw Money</a></p>
+                    <p><a href="{% url 'transfer_money' %}" class="action-link">Transfer Money</a></p>
+                </div>
+            {% else %}
+                <p>Unauthorized access. Please <a href="{% url 'login' %}" class="login-link">log in</a>.</p>
+            {% endif %}
+        </div>
+        <footer class="footer">
+            <p><a href="/" class="home-link">Go back to home</a></p>
+        </footer>
+    </div>
+
+    <style>
+      /* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.user-info p {
+    margin-bottom: 10px;
+}
+
+.transaction-history ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.transaction-history ul li {
+    margin-bottom: 5px;
+}
+
+.actions {
+    margin-top: 30px;
+}
+
+.action-link {
+    color: #fff;
+    background-color: #0070ba;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.action-link:hover {
+    background-color: #005ea6;
+}
+
+.login-link {
+    color: #0070ba;
+    text-decoration: underline;
+}
+
+.footer {
+    margin-top: 50px;
+    text-align: center;
+}
+
+.home-link {
+    color: #0070ba;
+    text-decoration: none;
+}
+
+    </style>
+</body>
+</html>

@@ -7,3 +7,6 @@ def send_notification(user, message):
     # For example, if sending an email notification:
     # Replace the following line with your actual code to send an email
     print(f"Notification sent to {user}: {message}")
+
+# import sqlite3
+# print(sqlite3.sqlite_version)

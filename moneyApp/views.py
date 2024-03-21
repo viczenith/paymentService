@@ -26,6 +26,9 @@ from django.db import transaction
 import logging
 from decimal import Decimal
 
+from .models import PaymentRequest
+from .forms import PaymentRequestForm
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project_name.settings')
 application = get_wsgi_application()
 
@@ -255,12 +258,6 @@ class ProfileView(LoginRequiredMixin, View):
 
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import PaymentRequest
-from .forms import PaymentRequestForm
-
 @login_required
 def create_payment_request(request):
     if request.method == 'POST':
@@ -287,16 +284,21 @@ def accept_payment_request(request, request_id):
     payment_request = get_object_or_404(PaymentRequest, id=request_id)
 
     if not payment_request.is_accepted:
+        if payment_request.amount > payment_request.recipient.profile.total_balance:
+            messages.error(request, 'Insufficient balance. Please check your balance.')
+            return redirect('view_payment_requests')
+        
         # Mark the payment request as accepted
         payment_request.is_accepted = True
         payment_request.save()
 
-        # Deduct the payment amount from the sender's (requester's) account
-        payment_request.requester.profile.total_balance -= payment_request.amount
+        
+        # Credit the payment amount to the recipient's account
+        payment_request.requester.profile.total_balance += payment_request.amount
         payment_request.requester.profile.save()
 
-        # Credit the payment amount to the recipient's account
-        payment_request.recipient.profile.total_balance += payment_request.amount
+        # Deduct the payment amount from the sender's (requester's) account
+        payment_request.recipient.profile.total_balance -= payment_request.amount
         payment_request.recipient.profile.save()
 
         messages.success(request, 'Payment request accepted successfully.')
